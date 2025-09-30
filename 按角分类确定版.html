@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三角形按角分类互动实验</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #e0f7fa 0%, #f9fbe7 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #00695c;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #4db6ac;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            min-width: 500px;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .info-panel {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background: #fafafa;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        
+        h2 {
+            color: #00796b;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #b2dfdb;
+        }
+        
+        .triangle-info {
+            margin-bottom: 25px;
+        }
+        
+        .triangle-type {
+            font-size: 1.8rem;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .acute {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+        
+        .right {
+            background: #bbdefb;
+            color: #1565c0;
+        }
+        
+        .obtuse {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+        
+        .angle-list {
+            list-style-type: none;
+            margin-top: 15px;
+        }
+        
+        .angle-list li {
+            padding: 12px 0;
+            border-bottom: 1px dashed #e0e0e0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .angle-label {
+            font-size: 1.1rem;
+            width: 50px;
+        }
+        
+        .angle-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #d84315;
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.95rem;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #4db6ac;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #26a69a;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #90a4ae;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #78909c;
+            transform: translateY(-2px);
+        }
+        
+        .btn-icon {
+            font-size: 1.2rem;
+        }
+        
+        .decorations {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .decoration {
+            position: absolute;
+            opacity: 0.2;
+        }
+        
+        .triangle-decoration {
+            width: 60px;
+            height: 60px;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-bottom: 52px solid #4db6ac;
+        }
+        
+        .circle-decoration {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ffb74d;
+        }
+        
+        .square-decoration {
+            width: 35px;
+            height: 35px;
+            background: #ba68c8;
+            transform: rotate(45deg);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .canvas-container, .info-panel {
+                min-width: 100%;
+            }
+            
+            .controls {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>三角形按角分类互动实验</h1>
+            <p class="subtitle">拖动顶点观察三角形类型的变化，理解锐角三角形、直角三角形和钝角三角形的特征</p>
+        </header>
+        
+        <div class="content">
+            <div class="canvas-container">
+                <div class="decorations">
+                    <!-- 装饰元素 -->
+                    <div class="decoration triangle-decoration" style="top: 10%; left: 5%;"></div>
+                    <div class="decoration circle-decoration" style="top: 15%; right: 10%;"></div>
+                    <div class="decoration square-decoration" style="bottom: 10%; left: 15%;"></div>
+                    <div class="decoration circle-decoration" style="bottom: 20%; right: 5%;"></div>
+                </div>
+                <canvas id="triangleCanvas" width="500" height="400"></canvas>
+            </div>
+            
+            <div class="info-panel">
+                <h2>三角形信息</h2>
+                <div class="triangle-info">
+                    <p>当前三角形类型：</p>
+                    <div id="triangleType" class="triangle-type acute">锐角三角形</div>
+                    
+                    <p>三个内角的度数：</p>
+                    <ul class="angle-list">
+                        <li><span class="angle-label">∠A:</span> <span id="angleA" class="angle-value">60.0°</span></li>
+                        <li><span class="angle-label">∠B:</span> <span id="angleB" class="angle-value">60.0°</span></li>
+                        <li><span class="angle-label">∠C:</span> <span id="angleC" class="angle-value">60.0°</span></li>
+                    </ul>
+                </div>
+                
+                <div class="controls">
+                    <button id="rightTriangleBtn" class="btn btn-primary">
+                        <span class="btn-icon">📐</span> 生成直角三角形
+                    </button>
+                    <button id="isoscelesRightBtn" class="btn btn-primary">
+                        <span class="btn-icon">🔺</span> 生成等腰直角三角形
+                    </button>
+                    <button id="resetBtn" class="btn btn-secondary">
+                        <span class="btn-icon">↺</span> 重置三角形
+                    </button>
+                </div>
+                
+                <div class="instructions">
+                    <h3>操作指南：</h3>
+                    <p>1. 拖动三角形的三个顶点来改变其形状</p>
+                    <p>2. 使用按钮快速生成特定类型的三角形</p>
+                    <p>3. 观察三角形类型随角度变化的情况</p>
+                    <p>4. 注意三种三角形类型的角度特征：</p>
+                    <ul>
+                        <li><strong>锐角三角形</strong>：三个角都小于90°</li>
+                        <li><strong>直角三角形</strong>：有一个角等于90°</li>
+                        <li><strong>钝角三角形</strong>：有一个角大于90°</li>
+                    </ul>
+                    <p>5. <strong>等腰直角三角形</strong>：既是直角三角形又是等腰三角形，两个锐角都是45°</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>数学课堂互动演示 | 三角形按角分类实验</p>
+        </footer>
+    </div>
+
+    <script>
+        // 获取Canvas元素和上下文
+        const canvas = document.getElementById('triangleCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 三角形顶点坐标（初始为等边三角形）
+        let points = [
+            { x: 250, y: 100 },  // 顶点A
+            { x: 150, y: 300 },  // 顶点B
+            { x: 350, y: 300 }   // 顶点C
+        ];
+        
+        // 当前拖动的顶点索引
+        let draggingIndex = -1;
+        
+        // 计算两点之间的距离
+        function distance(x1, y1, x2, y2) {
+            return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+        }
+        
+        // 计算角度（使用余弦定理）
+        function calculateAngle(a, b, c) {
+            // a, b, c 是三角形的三边长度
+            return Math.acos((b * b + c * c - a * a) / (2 * b * c)) * (180 / Math.PI);
+        }
+        
+        // 计算三角形的三个角度
+        function calculateAngles() {
+            const a = distance(points[1].x, points[1].y, points[2].x, points[2].y); // 边a (BC)
+            const b = distance(points[0].x, points[0].y, points[2].x, points[2].y); // 边b (AC)
+            const c = distance(points[0].x, points[0].y, points[1].x, points[1].y); // 边c (AB)
+            
+            const angleA = calculateAngle(a, b, c); // 角A
+            const angleB = calculateAngle(b, a, c); // 角B
+            const angleC = calculateAngle(c, a, b); // 角C
+            
+            return { angleA, angleB, angleC };
+        }
+        
+        // 确定三角形类型
+        function determineTriangleType(angles) {
+            // 使用一个小容差来检测直角（避免浮点数精度问题）
+            const tolerance = 0.5;
+            
+            if (Math.abs(angles.angleA - 90) < tolerance || 
+                Math.abs(angles.angleB - 90) < tolerance || 
+                Math.abs(angles.angleC - 90) < tolerance) {
+                return { type: 'right', name: '直角三角形' };
+            } else if (angles.angleA > 90 || angles.angleB > 90 || angles.angleC > 90) {
+                return { type: 'obtuse', name: '钝角三角形' };
+            } else {
+                return { type: 'acute', name: '锐角三角形' };
+            }
+        }
+        
+        // 更新显示信息
+        function updateInfo() {
+            const angles = calculateAngles();
+            const triangleType = determineTriangleType(angles);
+            
+            // 更新角度显示
+            document.getElementById('angleA').textContent = angles.angleA.toFixed(1) + '°';
+            document.getElementById('angleB').textContent = angles.angleB.toFixed(1) + '°';
+            document.getElementById('angleC').textContent = angles.angleC.toFixed(1) + '°';
+            
+            // 更新三角形类型显示
+            const typeElement = document.getElementById('triangleType');
+            typeElement.textContent = triangleType.name;
+            typeElement.className = 'triangle-type ' + triangleType.type;
+        }
+        
+        // 绘制三角形
+        function drawTriangle() {
+            // 清除画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制三角形填充
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            ctx.lineTo(points[1].x, points[1].y);
+            ctx.lineTo(points[2].x, points[2].y);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(77, 182, 172, 0.3)';
+            ctx.fill();
+            
+            // 绘制三角形边框
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            ctx.lineTo(points[1].x, points[1].y);
+            ctx.lineTo(points[2].x, points[2].y);
+            ctx.closePath();
+            ctx.strokeStyle = '#00796b';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // 绘制顶点和标签
+            const labels = ['A', 'B', 'C'];
+            points.forEach((point, index) => {
+                // 绘制顶点
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 8, 0, Math.PI * 2);
+                ctx.fillStyle = '#00796b';
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // 绘制标签
+                ctx.font = 'bold 16px Arial';
+                ctx.fillStyle = '#00796b';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // 根据顶点位置调整标签位置
+                let offsetX = 0, offsetY = 0;
+                if (index === 0) offsetY = -25; // 顶点A在上方
+                else if (index === 1) offsetX = -25; // 顶点B在左侧
+                else offsetX = 25; // 顶点C在右侧
+                
+                ctx.fillText(labels[index], point.x + offsetX, point.y + offsetY);
+            });
+            
+            // 绘制角度标注
+            const angles = calculateAngles();
+            const angleLabels = [
+                { x: points[0].x - 20, y: points[0].y + 25, angle: angles.angleA.toFixed(1) + '°' },
+                { x: points[1].x + 20, y: points[1].y - 20, angle: angles.angleB.toFixed(1) + '°' },
+                { x: points[2].x - 20, y: points[2].y - 20, angle: angles.angleC.toFixed(1) + '°' }
+            ];
+            
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#d84315';
+            angleLabels.forEach(label => {
+                ctx.fillText(label.angle, label.x, label.y);
+            });
+        }
+        
+        // 生成直角三角形
+        function createRightTriangle() {
+            // 设置一个直角三角形，直角在B点
+            points = [
+                { x: 200, y: 100 },  // 顶点A
+                { x: 200, y: 300 },  // 顶点B（直角顶点）
+                { x: 350, y: 300 }   // 顶点C
+            ];
+            
+            drawTriangle();
+            updateInfo();
+        }
+        
+        // 生成等腰直角三角形
+        function createIsoscelesRightTriangle() {
+            // 设置一个等腰直角三角形，直角在B点，AB = BC
+            const sideLength = 150; // 等腰直角三角形的直角边长度
+            
+            points = [
+                { x: 200, y: 100 },                      // 顶点A
+                { x: 200, y: 100 + sideLength },         // 顶点B（直角顶点）
+                { x: 200 + sideLength, y: 100 + sideLength }  // 顶点C
+            ];
+            
+            drawTriangle();
+            updateInfo();
+        }
+        
+        // 重置三角形
+        function resetTriangle() {
+            points = [
+                { x: 250, y: 100 },  // 顶点A
+                { x: 150, y: 300 },  // 顶点B
+                { x: 350, y: 300 }   // 顶点C
+            ];
+            
+            drawTriangle();
+            updateInfo();
+        }
+        
+        // 鼠标事件处理
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // 检查是否点击了顶点
+            for (let i = 0; i < points.length; i++) {
+                if (distance(x, y, points[i].x, points[i].y) < 15) {
+                    draggingIndex = i;
+                    break;
+                }
+            }
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (draggingIndex !== -1) {
+                const rect = canvas.getBoundingClientRect();
+                points[draggingIndex].x = e.clientX - rect.left;
+                points[draggingIndex].y = e.clientY - rect.top;
+                
+                // 限制顶点在画布范围内
+                points[draggingIndex].x = Math.max(10, Math.min(canvas.width - 10, points[draggingIndex].x));
+                points[draggingIndex].y = Math.max(10, Math.min(canvas.height - 10, points[draggingIndex].y));
+                
+                drawTriangle();
+                updateInfo();
+            }
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            draggingIndex = -1;
+        });
+        
+        canvas.addEventListener('mouseleave', () => {
+            draggingIndex = -1;
+        });
+        
+        // 按钮事件监听
+        document.getElementById('rightTriangleBtn').addEventListener('click', createRightTriangle);
+        document.getElementById('isoscelesRightBtn').addEventListener('click', createIsoscelesRightTriangle);
+        document.getElementById('resetBtn').addEventListener('click', resetTriangle);
+        
+        // 初始化
+        drawTriangle();
+        updateInfo();
+    </script>
+</body>
+</html>
